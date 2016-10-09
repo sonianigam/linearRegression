@@ -6,6 +6,8 @@ import csv
 import numpy as np
 import scipy
 import matplotlib.pyplot as plt
+import itertools
+
 
 def nfoldpolyfit(X, Y, maxK, n, verbose):
 #	NFOLDPOLYFIT Fit polynomial of the best degree to data.
@@ -34,9 +36,32 @@ def nfoldpolyfit(X, Y, maxK, n, verbose):
 #   polynomial to the data in a second plot.
 #   
 #
-#   AUTHOR: Bryan Pardo (This is where you put your name)
+#   AUTHOR: Sonia Nigam (This is where you put your name)
 #
+    x_sets = np.split(X, n)
+    y_sets = np.split(Y, n)
+    
+    for k in xrange(maxK+1):
+        validation_error_sum = 0
+        
+        for trial in xrange(n):
+            x_testing_data = x_sets[trial]
+            y_testing_data = y_sets[trial]
+        
+            x_training_lists = x_sets[:trial] + x_sets[trial+1:]
+            y_training_lists = y_sets[:trial] + y_sets[trial+1:]
+            
+            x_training_data = np.array(x_training_lists).flatten()
+            y_training_data = np.array(y_training_lists).flatten()
+            
+            polynomial = np.polyfit(x_training_data, y_training_data, k)
+            error = validation_error(x_testing_data, y_testing_data, polynomial)
+            
+        
 
+def validation_error(x_values, y_values, polynomial):
+    
+    print "testing"
 
 def main():
 	# read in system arguments, first the csv file, max degree fit, number of folds, verbose
