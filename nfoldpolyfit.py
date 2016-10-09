@@ -6,7 +6,7 @@ import csv
 import numpy as np
 import scipy
 import matplotlib.pyplot as plt
-import itertools
+import math
 
 
 def nfoldpolyfit(X, Y, maxK, n, verbose):
@@ -40,9 +40,14 @@ def nfoldpolyfit(X, Y, maxK, n, verbose):
 #
     x_sets = np.split(X, n)
     y_sets = np.split(Y, n)
+    min_MSE = float("inf")
+    min_k = float("inf")
+    
+    y_means = []
+    x_kvalues = []
     
     for k in xrange(maxK+1):
-        validation_error_sum = 0
+        k_error = 0
         
         for trial in xrange(n):
             x_testing_data = x_sets[trial]
@@ -55,13 +60,40 @@ def nfoldpolyfit(X, Y, maxK, n, verbose):
             y_training_data = np.array(y_training_lists).flatten()
             
             polynomial = np.polyfit(x_training_data, y_training_data, k)
-            error = validation_error(x_testing_data, y_testing_data, polynomial)
-            
+            k_error += validation_error(x_testing_data, y_testing_data, polynomial)
+                
+        if k_error < min_MSE:
+            min_MSE = k_error
+            min_k = k
         
+        y_means.append(k_error)
+        x_kvalues.append(k)
+        
+    #graph k value with average means
+    print y_means
+    print x_kvalues
+    plt.plot(x_kvalues, y_means, "ro")
+    plt.ylabel('mean square error')
+    plt.xlabel('k value')
+    plt.axis([0, k, 0, 3])
+    print "saving plot image"
+    plt.savefig('plot.png')
+                    
 
 def validation_error(x_values, y_values, polynomial):
+    y_actuals = []
+    MSE_total = 0.0
     
-    print "testing"
+    for x in x_values:
+        actual = np.polyval(polynomial, x)
+        y_actuals.append(actual)
+    
+    for i in xrange(len(y_values)):
+        sum = math.pow((y_values[i]-y_actuals[i]),2)
+        MSE_total += sum
+        
+    error = MSE_total/len(y_values) 
+    return error
 
 def main():
 	# read in system arguments, first the csv file, max degree fit, number of folds, verbose
