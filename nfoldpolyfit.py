@@ -41,7 +41,9 @@ def nfoldpolyfit(X, Y, maxK, n, verbose):
     x_sets = np.split(X, n)
     y_sets = np.split(Y, n)
     min_MSE = float("inf")
+    max_MSE = 0
     min_k = float("inf")
+    best_polynomial = []
     
     y_means = []
     x_kvalues = []
@@ -65,19 +67,24 @@ def nfoldpolyfit(X, Y, maxK, n, verbose):
         if k_error < min_MSE:
             min_MSE = k_error
             min_k = k
+            best_polynomial = polynomial
+        elif k_error > max_MSE:
+            max_MSE = k_error
         
         y_means.append(k_error)
         x_kvalues.append(k)
         
     #graph k value with average means
-    print y_means
-    print x_kvalues
-    plt.plot(x_kvalues, y_means, "ro")
-    plt.ylabel('mean square error')
-    plt.xlabel('k value')
-    plt.axis([0, k, 0, 3])
-    print "saving plot image"
-    plt.savefig('plot.png')
+    if verbose == 1:
+        plt.plot(x_kvalues, y_means, "ro")
+        plt.ylabel('mean square error')
+        plt.xlabel('k value')
+        plt.axis([0, k+.2, 0, max_MSE+.5])
+        plt.title("Linear Regression MSE")
+        print "saving plot image"
+        plt.savefig('MSE.png')
+        
+        graph_best_function(best_polynomial, X)
                     
 
 def validation_error(x_values, y_values, polynomial):
@@ -94,13 +101,43 @@ def validation_error(x_values, y_values, polynomial):
         
     error = MSE_total/len(y_values) 
     return error
+    
+def graph_best_function(polynomial, x_data):
+    y_values = []
+    upper_bound_y = 0
+    lower_bound_y = float("inf")
+    upper_bound_x = 0
+    lower_bound_x = float("inf")
+
+    for x in x_data:
+        val = np.polyval(polynomial, x)
+        y_values.append(val)
+        if val > upper_bound_y:
+            upper_bound_y = val
+        elif val < lower_bound_y:
+            lower_bound_y = val
+            
+        if x > upper_bound_x:
+            upper_bound_x = x
+        elif x < lower_bound_x:
+            lower_bound_x = x
+    
+    plt.plot(x_data, y_values, "ro")
+    plt.ylabel('estimated values')
+    plt.xlabel('attribute vector')
+    plt.axis([lower_bound_x-.5, upper_bound_x+.5, lower_bound_x-.5, upper_bound_y+.5])
+    plt.title("Best Polynomial Fit")
+    print "saving plot image"
+    plt.savefig('bestfit.png')
+    
+    
 
 def main():
 	# read in system arguments, first the csv file, max degree fit, number of folds, verbose
 	rfile = sys.argv[1]
 	maxK = int(sys.argv[2])
-	nFolds = int(sys.argv[3])
-	verbose = bool(sys.argv[4])
+	nFolds = int(sys.argv[3])        
+	verbose = bool(int(sys.argv[4]))
 	
 	csvfile = open(rfile, 'rb')
 	dat = csv.reader(csvfile, delimiter=',')
