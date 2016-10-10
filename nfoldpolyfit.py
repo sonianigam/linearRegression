@@ -73,6 +73,8 @@ def nfoldpolyfit(X, Y, maxK, n, verbose):
         
         y_means.append(k_error)
         x_kvalues.append(k)
+    
+    print "The k that yielded the best results is " + str(min_k) + " with the error of " + str(min_MSE)
         
     #graph k value with average means
     if verbose == 1:
