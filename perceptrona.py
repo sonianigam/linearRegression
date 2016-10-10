@@ -5,9 +5,43 @@ import scipy
 
 def perceptrona(w_init, X, Y):
 	#figure out (w, k) and return them here. w is the vector of weights, k is how many iterations it took to converge.
-	return (w, k)
-
-
+    #initialize weighted vector
+    w = w_init
+    #initiliaze number of times it takes to converge to answer
+    e = 0
+    #incremement to keep track of correct vs errors
+    correct = 0
+    
+    #execute until a paramter vector is found, which will return out of the loop
+    while True:
+        for component_one, component_two in zip(X,Y):
+            #find value
+            xk = (w[0]*component_one) + (w[1]*component_two)
+            classification = int()
+            #classify data based on value
+            if xk <= 0:
+                classification = -1
+            else:
+                classification = 1
+            
+            #correct classification
+            if classification == component_two:
+                correct += 1
+            #if classification is incorrect, break out of loop
+            else:
+                break
+                        
+        #increment number of completed iterations        
+        e += 1
+        #check if all datapoints correctly classified 
+        if correct == len(X):
+            return (w, e)
+        #if the errors do not equal zero, set correct to be zero, and update weight vector for next iteration
+        else:
+            correct = 0
+            w = (w* np.array([1, component_one])) + (component_two * np.array([1, component_one]))
+        
+        
 def main():
 	rfile = sys.argv[1]
 	
@@ -28,9 +62,18 @@ def main():
 	X2 = np.array(X2)
 	Y1 = np.array(Y1)
 	Y2 = np.array(Y2)
-	w_init = # INTIALIZE W_INIT
-	perceptrona(w_init, X1, Y1)
-	perceptrona(w_init, X2, Y2)
+    #initilaize weight vector to be [0,0]
+	w_init = np.array([0,0])
+    #grab parameter vector and number of epochs to correctly classify X1
+	w_1, e_1 = perceptrona(w_init, X1, Y1)
+    
+	print "It took " + str(e_1) + " epochs to correctly classify X1." 
+	print "The parameter vector is: " + str(w_1) 
+    
+    #grab parameter vector and number of epochs to correctly classify X1
+	w_2, e_2 = perceptrona(w_init, X2, Y2)
+	print "It took " + str(e_2) + " epochs to correctly classify X2." 
+	print "The parameter vector is: " + str(w_2)
 
 if __name__ == "__main__":
 	main()
