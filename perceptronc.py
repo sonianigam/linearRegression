@@ -3,9 +3,10 @@ import csv
 import numpy as np
 import scipy
 import matplotlib.pyplot as plt
+import math
 
 
-def perceptrona(w_init, X, Y):
+def perceptronc(w_init, X, Y):
 	#figure out (w, k) and return them here. w is the vector of weights, k is how many iterations it took to converge.
     #initialize weighted vector
     w = w_init
@@ -15,10 +16,12 @@ def perceptrona(w_init, X, Y):
     correct = 0
     
     #execute until a paramter vector is found, which will return out of the loop
-    while True:        
+    while True: 
+        #reset correct counter
+        correct = 0       
         for component_one, component_two in zip(X,Y):
             #find value based on weighted vector and initialize classification variable
-            xk = w[0]+w[1]*component_one
+            xk = w[0]+w[1]*component_one + w[2]*math.pow(component_one,2)
             classification = int()
             
             #classify data based on value found with weighted param vector
@@ -31,20 +34,16 @@ def perceptrona(w_init, X, Y):
             if classification == component_two:
                 correct += 1
                 
-            #if classification is incorrect, break out of loop to start over with new parameter vector
+            #if classification is incorrect update param vector
             else:
-                break
+                w = (component_two * np.array([1,component_one, math.pow(component_one,2)])) + w
                 
         #increment number of completed iterations        
         e += 1 
-        #check if all datapoints correctly classified 
+        #check if all datapoints correctly classified, if so return answer
         if correct == len(X):
             return (w, e)
             
-        #if all data is classified correctly, restart: set correct to be zero and update weight vector for next iteration
-        else:
-            correct = 0
-            w = (component_two * np.array([1, component_one])) + w
 
 
 def main():
@@ -68,27 +67,23 @@ def main():
 	Y1 = np.array(Y1)
 	Y2 = np.array(Y2)
     #initilaize weight vector to be [0,0]
-	w_init = np.array([0,0])
-    #grab parameter vector and number of epochs to correctly classify X1
-	w_1, e_1 = perceptrona(w_init, X1, Y1)
-    
-	print "It took " + str(e_1) + " epochs to correctly classify X1." 
-	print "The parameter vector is: " + str(w_1) 
+	w_init = np.array([0,0,0])
     
 	#grab parameter vector and number of epochs to correctly classify X2: this is commented out because it cannot terminate given then present algorithm. Please see perceptronc.py to find the classification solution to X2 data set.
     
-    # w_2, e_2 = perceptrona(w_init, X2, Y2)
-    # print "It took " + str(e_2) + " epochs to correctly classify X2."
-    # print "The parameter vector is: " + str(w_2)
+	w_2, e_2 = perceptronc(w_init, X2, Y2)
+	print "It took " + str(e_2) + " epochs to correctly classify X2."
+	print "The parameter vector is: " + str(w_2)
     
     
     ######### Graph of X2, Y2 Data ################
-    # plt.plot(X2, Y2, "ro")
+        
+    # plt.plot(X2, X2_new, "ro")
     # plt.ylabel('Y2 Data')
     # plt.xlabel('X2 Data')
     # plt.title('Detecting Data Trends')
-    # plt.savefig('X2Data.png')
-    
+    # plt.savefig('X2transform.png')
+
     
 
 if __name__ == "__main__":

@@ -15,7 +15,9 @@ def perceptrona(w_init, X, Y):
     correct = 0
     
     #execute until a paramter vector is found, which will return out of the loop
-    while True:        
+    while True:  
+        #reset correct counter  
+        correct = 0    
         for component_one, component_two in zip(X,Y):
             #find value based on weighted vector and initialize classification variable
             xk = w[0]+w[1]*component_one
@@ -30,21 +32,16 @@ def perceptrona(w_init, X, Y):
             #correct classification, incremenent correct counter
             if classification == component_two:
                 correct += 1
-                
-            #if classification is incorrect, break out of loop to start over with new parameter vector
+            #if classification is incorrect, update param vector
             else:
-                break
+                w = (component_two * np.array([1, component_one])) + w
                 
         #increment number of completed iterations        
         e += 1 
-        #check if all datapoints correctly classified 
+        #check if all datapoints correctly classified, if so return answer
         if correct == len(X):
             return (w, e)
             
-        #if all data is classified correctly, restart: set correct to be zero and update weight vector for next iteration
-        else:
-            correct = 0
-            w = (component_two * np.array([1, component_one])) + w
 
 
 def main():
