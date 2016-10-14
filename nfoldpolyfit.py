@@ -36,10 +36,13 @@ def nfoldpolyfit(X, Y, maxK, n, verbose):
 #   polynomial to the data in a second plot.
 #   
 #
-#   AUTHOR: Sonia Nigam (This is where you put your name)
-#
+#   AUTHOR: Sonia Nigam 
+
+    #splits data according to n
     x_sets = np.split(X, n)
     y_sets = np.split(Y, n)
+    
+    #mantains reference points and tracks polynomial with smallest error
     min_MSE = float("inf")
     max_MSE = 0
     min_k = float("inf")
@@ -48,9 +51,11 @@ def nfoldpolyfit(X, Y, maxK, n, verbose):
     y_means = []
     x_kvalues = []
     
+    #number of iterations as determined by the input
     for k in xrange(maxK+1):
         k_error = 0
         
+        #divides data into training and testing sets
         for trial in xrange(n):
             x_testing_data = x_sets[trial]
             y_testing_data = y_sets[trial]
@@ -61,9 +66,12 @@ def nfoldpolyfit(X, Y, maxK, n, verbose):
             x_training_data = np.array(x_training_lists).flatten()
             y_training_data = np.array(y_training_lists).flatten()
             
+            #finds best fit polynomial according to training data
             polynomial = np.polyfit(x_training_data, y_training_data, k)
+            #finds erorr using above polynomial against testing data
             k_error += validation_error(x_testing_data, y_testing_data, polynomial)
                 
+        #updates if least error polynomial
         if k_error < min_MSE:
             min_MSE = k_error
             min_k = k
@@ -76,7 +84,7 @@ def nfoldpolyfit(X, Y, maxK, n, verbose):
     
     print "The k that yielded the best results is " + str(min_k) + " with the error of " + str(min_MSE)
         
-    #graph k value with average means
+    #graph k value with average means if verbose is set
     if verbose == 1:
         plt.plot(x_kvalues, y_means, "ro")
         plt.ylabel('mean square error')
@@ -93,17 +101,20 @@ def validation_error(x_values, y_values, polynomial):
     y_actuals = []
     MSE_total = 0.0
     
+    #find values based on polynomial
     for x in x_values:
         actual = np.polyval(polynomial, x)
         y_actuals.append(actual)
-    
+        
+    #calculates MSE based on actuals and estimates
     for i in xrange(len(y_values)):
         sum = math.pow((y_values[i]-y_actuals[i]),2)
         MSE_total += sum
         
     error = MSE_total/len(y_values) 
     return error
-    
+
+#graphs polynomial with x data
 def graph_best_function(polynomial, x_data):
     y_values = []
     upper_bound_y = 0
